@@ -22,7 +22,7 @@ public class l001 {
         for (int i = 0; i < N; i++) {
             System.out.print(i + " -> ");
             for (Edge e : graph[i]) {
-                System.out.print("(" + e.v + ", " + e.w + ") ");
+                System.out.print("(" + e.v + ", " + e.w + ")");
             }
             System.out.println();
         }

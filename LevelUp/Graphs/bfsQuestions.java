@@ -132,5 +132,134 @@ public class bfsQuestions {
         }
         return rooms;
     } 
+      //210
+      public int[] findOrder(int N, int[][] arr) {
+        ArrayList<Integer>[] graph = new ArrayList[N];
+        for (int i = 0; i < N; i++)
+            graph[i] = new ArrayList<>();
+        for (int[] a : arr) {
+            graph[a[0]].add(a[1]);
+        }
 
+        LinkedList<Integer> que = new LinkedList<>();
+        int[] ans = new int[N];
+        int[] indegree = new int[N];
+        int idx = N - 1;
+
+        // O(E)
+        for (int i = 0; i < N; i++) {
+            for (Integer v : graph[i]) {
+                indegree[v]++;
+            }
+        }
+
+        // O(V)
+        for (int i = 0; i < N; i++)
+            if (indegree[i] == 0)
+                que.addLast(i);
+
+        // O(E + V)
+        while (que.size() != 0) {
+            int rvtx = que.removeFirst();
+            ans[idx--] = rvtx;
+
+            for (Integer v : graph[rvtx]) {
+                if (--indegree[v] == 0)
+                    que.addLast(v);
+            }
+        }
+
+        if (idx != -1)
+            ans = new int[0];
+
+        return ans;
+    }
+
+    public int longestIncreasingPath(int[][] matrix) {
+        int n = matrix.length;
+        int m = matrix[0].length;
+        int[][] dir = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        LinkedList<Integer> que = new LinkedList<>();
+        int[][] inDegree = new int[n][m];
+        int level = 0;
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j < m; j++){
+                for(int d = 0; d < 4; d++){
+                    int r = i + dir[d][0];
+                    int c = j + dir[d][1];
+                    if(i >= 0 && j >= 0 && i < n && j < m && matrix[i][j] > matrix[r][c]){
+                        inDegree[i][j]++;
+                    }
+                }  
+                
+                if(inDegree[i][j] == 0) que.addLast(i * m + j);
+            }
+        }
+        
+        while(que.size() != 0){
+            int size = que.size();
+            while(size-- > 0){
+                int rvtx = que.removeFirst();
+                int i = rvtx / m, j = rvtx % m;
+
+                for(int d = 0; d < 4; d++){
+                    int r = i + dir[d][0];
+                    int c = j + dir[d][1];
+                    if(i >= 0 && j >= 0 && i < n && j < m && matrix[i][j] < matrix[r][c] && --indegree[r][c] == 0){
+                        que.addLast(r * m + c);
+                    }
+                }  
+
+            }
+            level++;
+        }
+        return level;
+
+        
+    }
+
+    //815 Bus route
+    public int numBusesToDestination(int[][] routes, int source, int target) {
+        if (source == target) return 0;
+        int N = routes.length;
+        HashMap<Integer, ArrayList<Integer>> map = new HashMap<>();  // bus-stand to bus mapping
+        
+        for (int bus = 0; bus < routes.length; bus++) {
+            for (int busStand : routes[bus]) {
+                map.putIfAbsent(busStand, new ArrayList<>());
+                map.get(busStand).add(bus);
+            }
+        }
+        
+        HashSet<Integer> busStandVisited = new HashSet<>();
+        boolean[] busVisited = new boolean[N];
+        int interchange = 0;
+        
+        LinkedList<Integer> que = new LinkedList<>();
+        que.addLast(source);
+        busStandVisited.add(source);
+        while (que.size() != 0) {
+            int size = que.size();
+            while (size-- > 0) {
+                int busStand = que.removeFirst();
+                for (int bus : map.get(busStand)) {
+                    if (busVisited[bus])
+                        continue;
+
+                    for (int upcomingBusStand : routes[bus]) {
+                        if (!busStandVisited.contains(upcomingBusStand)) {
+                            busStandVisited.add(upcomingBusStand);
+                            que.addLast(upcomingBusStand);
+                            if (upcomingBusStand == target) {
+                                return interchange + 1;
+                            }
+                        }
+                    }
+                    busVisited[bus] = true;
+                }
+            }
+            interchange++;
+        }
+        return -1;
+    }
 }
